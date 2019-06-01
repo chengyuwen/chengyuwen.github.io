@@ -1,71 +1,79 @@
-/*!
- * Clean Blog v1.0.0 (http://startbootstrap.com)
- * Copyright 2015 Start Bootstrap
- * Licensed under Apache 2.0 (https://github.com/IronSummitMedia/startbootstrap/blob/gh-pages/LICENSE)
- */
+var alphaDust = function () {
 
-// Tooltip Init
-$(function () {
-  $('[data-toggle="tooltip"]').tooltip()
-})
+    var _menuOn = false;
 
-// responsive tables
-$(document).ready(function() {
-    $("table").each(function(){
-      if ($(this).parent().get(0).tagName != 'FIGURE') {
-        $(this).addClass("table table-responsive table-striped table-hover");
-        $(this).find("th").addClass("text-center");
-      }
-    });
-});
+    function initPostHeader() {
+        $('.main .post').each(function () {
+            var $post = $(this);
+            var $header = $post.find('.post-header.index');
+            var $title = $post.find('h1.title');
+            var $readMoreLink = $post.find('a.read-more');
 
-// responsive embed videos
-$(document).ready(function () {
-    $('iframe[src*="youtube.com"]').wrap('<div class="embed-responsive embed-responsive-16by9"></div>');
-    $('iframe[src*="youtube.com"]').addClass('embed-responsive-item');
-    $('iframe[src*="vimeo.com"]').wrap('<div class="embed-responsive embed-responsive-16by9"></div>');
-    $('iframe[src*="vimeo.com"]').addClass('embed-responsive-item');
-    $('img').addClass('img-responsive-center')
-});
+            var toggleHoverClass = function () {
+                $header.toggleClass('hover');
+            };
 
-// whether a post
-function isPages(attr){
-    var currentBoolean = document.querySelector('.navbar.header-navbar').getAttribute(attr);
-    if(currentBoolean === 'true'){return true;}
-    return false;
-}
-/*
-    scroll function
-    3 parameters
-        1. a DOM object
-        2 a class for targeted object
-        3 height when acctivated (optional. default: the height of the DOM)
-*/
-function scrollCheck(scrollTarget, toggleClass, scrollHeight){
-    document.addEventListener('scroll',function(){
-    var currentTop = window.pageYOffset;
-        currentTop > (scrollHeight||scrollTarget.clientHeight)
-        ?scrollTarget.classList.add(toggleClass)
-        :scrollTarget.classList.remove(toggleClass)
-    })
-}
-
-
-
-/*
-* Steps
-* 1. get the content of h1
-* 2. scroll and appear fixed navbar
-* 3. the content of h1 is shown center at the top of the page
-* */
-
-(function(){
-    if (isPages('data-ispost')){
-        var navbar = document.querySelector('.navbar-custom');
-        var introHeader = document.querySelector('.intro-header').offsetHeight;
-        var introHeader = introHeader > 597 ? introHeader : 500;
-        var toc = document.querySelector('.toc-wrap');
-        scrollCheck(toc,'toc-fixed',introHeader-60);
-        // scrollCheck(navbar,'is-fixed');
+            $title.hover(toggleHoverClass, toggleHoverClass);
+            $readMoreLink.hover(toggleHoverClass, toggleHoverClass);
+        });
     }
-})();
+
+    function _menuShow () {
+        $('nav a').addClass('menu-active');
+        $('.menu-bg').show();
+        $('.menu-item').css({opacity: 0});
+        TweenLite.to('.menu-container', 1, {padding: '0 40px'});
+        TweenLite.to('.menu-bg', 1, {opacity: '0.92'});
+        TweenMax.staggerTo('.menu-item', 0.5, {opacity: 1}, 0.3);
+        _menuOn = true;
+
+        $('.menu-bg').hover(function () {
+            $('nav a').toggleClass('menu-close-hover');
+        });
+    }
+
+    function _menuHide() {
+        $('nav a').removeClass('menu-active');
+        TweenLite.to('.menu-bg', 0.5, {opacity: '0', onComplete: function () {
+            $('.menu-bg').hide();
+        }});
+        TweenLite.to('.menu-container', 0.5, {padding: '0 100px'});
+        $('.menu-item').css({opacity: 0});
+        _menuOn = false;
+    }
+
+    function initMenu() {
+
+        $('nav a').click(function () {
+            if(_menuOn) {
+                _menuHide();
+            } else {
+                _menuShow();
+            }
+        });
+
+        $('.menu-bg').click(function (e) {
+            if(_menuOn && e.target === this) {
+                _menuHide();
+            }
+        });
+    }
+
+    function displayArchives() {
+        $('.archive-post').css({opacity: 0});
+        TweenMax.staggerTo('.archive-post', 0.4, {opacity: 1}, 0.15);
+    }
+
+    return {
+        initPostHeader: initPostHeader,
+        initMenu: initMenu,
+        displayArchives: displayArchives
+    };
+}();
+
+
+$(document).ready(function () {
+    alphaDust.initPostHeader();
+    alphaDust.initMenu();
+    alphaDust.displayArchives();
+});
